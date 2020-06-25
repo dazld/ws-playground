@@ -3,23 +3,37 @@
     <head></head>
     <body>
        <h1>Hello</h1>
+       <div class="target"></div>
        <script>
+           const target = document.querySelector(".target");
+           const client = {};
 
            function connect(onclose){
                return new Promise(function(resolve, reject){
-                   if (window.ws) {
-                       window.ws.close();
+                   if (client.ws && typeof client.ws.close == "function") {
+                       client.ws.close();
                    }
+                   var id = Math.floor(Math.random() * Date.now());
                    var ws = new WebSocket("ws://localhost:8001/ws/");
+                   var somethingWrong;
+
                    ws.onmessage = function(evt) {
+                       if (evt.data.includes("you are -")) {
+                           clearTimeout(somethingWrong);
+                           client.id = evt.data.split("you are - ")[1];
+                           resolve(ws);
+                       }
                        console.log("evt:", evt.data);
+                       let msg = document.createElement("p");
+                       msg.innerText = evt.data;
+                       target.appendChild(msg);
                    }
                    ws.onerror = function (err) {
                        console.error(err);
                        reject(err);
                    }
                    ws.onopen = function(){
-                     resolve(ws);
+                        somethingWrong = setTimeout(ws.close.bind(ws), 0);
                    }
                    ws.onclose = function () {
                         console.log("closed");
@@ -29,7 +43,7 @@
            }
 
            async function run(){
-               window.ws = await connect(run);
+               client.ws = await connect(run);
                console.log("connected");
                return window.ws;
            }
