@@ -18,13 +18,17 @@
 (defn handler [request]
   (handler* request))
 
-(defn run []
+(defn stop []
   (when-let [server @server!]
-    (j9/stop-server server))
+    (j9/stop-server server)))
+
+(defn run []
+  (stop)
   (reset! server! (j9/run-jetty handler {:port       8001
                                          :join?      false
                                          :websockets {"/ws" ws-handler}})))
 
 (comment
   (deref server!)
+  (stop)
   (run))

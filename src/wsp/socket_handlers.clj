@@ -26,4 +26,4 @@
 
 (comment
   (doseq [ws @connected-clients]
-    (on-text ws {:msg "hi"})))
+    (prn (on-text ws (System/currentTimeMillis)))))

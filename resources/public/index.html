@@ -4,13 +4,39 @@
     <body>
        <h1>Hello</h1>
        <script>
-           var ws = new WebSocket("ws://localhost:8001/ws/");
-           ws.onmessage = function(evt) {
-               console.log("evt:", evt.data);
+
+           function connect(onclose){
+               return new Promise(function(resolve, reject){
+                   if (window.ws) {
+                       window.ws.close();
+                   }
+                   var ws = new WebSocket("ws://localhost:8001/ws/");
+                   ws.onmessage = function(evt) {
+                       console.log("evt:", evt.data);
+                   }
+                   ws.onerror = function (err) {
+                       console.error(err);
+                       reject(err);
+                   }
+                   ws.onopen = function(){
+                     resolve(ws);
+                   }
+                   ws.onclose = function () {
+                        console.log("closed");
+                        setTimeout(onclose, 1000);
+                   }
+               });
            }
-           ws.onerror = function (err) {
-               console.error(err);
+
+           async function run(){
+               window.ws = await connect(run);
+               console.log("connected");
+               return window.ws;
            }
+
+           run().then(console.log).catch(console.error);
+
+
        </script>
     </body>
 </html>
