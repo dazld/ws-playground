@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+    <head></head>
+    <body>
+       <h1>Hello</h1>
+       <script>
+           var ws = new WebSocket("ws://localhost:8001/ws/");
+           ws.onmessage = function(evt) {
+               console.log("evt:", evt.data);
+           }
+           ws.onerror = function (err) {
+               console.error(err);
+           }
+       </script>
+    </body>
+</html>
